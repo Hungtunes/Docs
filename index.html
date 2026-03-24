@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,12 +12,32 @@
         ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #c7c7cc; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #a1a1aa; }
+        
+        /* Smooth transition cho chế độ Fullscreen */
+        .fullscreen-mode {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 100 !important;
+            margin: 0 !important;
+            border-radius: 0 !important;
+            overflow-y: auto !important;
+        }
+
+        /* Offset để khi click mục lục, tiêu đề không bị che bởi navbar */
+        h1, h2, h3, h4, h5, h6 {
+            scroll-margin-top: 5rem; 
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
 
-    <nav class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
-        <div class="max-w-5xl mx-auto px-4 py-3 flex justify-between items-center">
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+        <div class="w-full px-4 md:px-8 py-3 flex justify-between items-center">
             <button onclick="showView('list')" class="text-xl font-extrabold text-slate-800 flex items-center gap-2 hover:text-blue-600 transition">
                 <span class="text-2xl">🧠</span> My Knowledge Base
             </button>
@@ -33,12 +53,12 @@
         </div>
     </nav>
 
-    <div id="toast" class="fixed bottom-4 right-4 p-4 rounded-xl text-white font-medium shadow-xl transition-all duration-300 transform translate-y-20 opacity-0 z-50 flex items-center gap-2 bg-blue-600">
+    <div id="toast" class="fixed bottom-4 right-4 p-4 rounded-xl text-white font-medium shadow-xl transition-all duration-300 transform translate-y-20 opacity-0 z-[1000] flex items-center gap-2 bg-blue-600">
         <span id="toast-icon">⏳</span>
         <span id="toast-msg">Đang xử lý...</span>
     </div>
 
-    <main class="flex-grow max-w-5xl mx-auto px-4 py-8 w-full">
+    <main class="flex-grow w-full px-4 md:px-8 py-8">
         
         <section id="view-config" class="hidden max-w-md mx-auto bg-white p-8 rounded-2xl shadow-sm border border-slate-200 mt-10">
             <div class="text-center mb-6">
@@ -63,7 +83,7 @@
         </section>
 
         <section id="view-list" class="hidden">
-            <div class="mb-10 text-center max-w-xl mx-auto mt-4">
+            <div class="mb-10 text-center w-full max-w-3xl mx-auto mt-4">
                 <h1 class="text-3xl font-extrabold text-slate-800 mb-4">Sổ tay kiến thức</h1>
                 <div class="relative">
                     <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">🔍</span>
@@ -77,32 +97,56 @@
                 <p class="text-slate-500 font-medium">Đang đồng bộ từ GitHub...</p>
             </div>
             
-            <div id="post-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                </div>
+            <div id="post-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+            </div>
         </section>
 
-        <section id="view-read" class="hidden bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-12 min-h-[60vh]">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 border-b border-slate-100 pb-6">
-                <h1 id="read-title" class="text-3xl font-extrabold text-slate-900 capitalize leading-snug"></h1>
-                <div class="flex gap-2 w-full md:w-auto">
-                    <button onclick="showView('list')" class="flex-1 md:flex-none bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg font-medium transition text-sm">
-                        ⬅️ Quay lại
-                    </button>
-                    <button onclick="showEditPost()" class="flex-1 md:flex-none bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition text-sm flex items-center justify-center gap-2">
-                        ✏️ Chỉnh sửa
-                    </button>
+        <section id="view-read" class="hidden bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 min-h-[60vh] transition-all duration-300">
+            <div class="flex flex-col xl:flex-row gap-8 relative">
+                
+                <aside class="w-full xl:w-72 flex-shrink-0 order-2 xl:order-1">
+                    <div class="sticky top-24 bg-slate-50 p-5 rounded-2xl border border-slate-100 max-h-[80vh] overflow-y-auto shadow-inner">
+                        <div class="flex items-center gap-2 mb-4 border-b border-slate-200 pb-3">
+                            <span class="text-lg">📑</span>
+                            <h3 class="font-extrabold text-slate-800 uppercase text-xs tracking-wider">Mục lục bài viết</h3>
+                        </div>
+                        <ul id="read-toc" class="space-y-2 text-sm text-slate-600 font-medium">
+                            </ul>
+                    </div>
+                </aside>
+
+                <div class="flex-grow order-1 xl:order-2 max-w-full overflow-hidden">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 border-b border-slate-100 pb-6">
+                        <h1 id="read-title" class="text-3xl font-extrabold text-slate-900 capitalize leading-snug break-words"></h1>
+                        <div class="flex flex-wrap gap-2 w-full md:w-auto">
+                            <button onclick="toggleFullscreen('view-read')" class="flex-1 md:flex-none bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg font-medium transition text-sm">
+                                🔲 Phóng to
+                            </button>
+                            <button onclick="showView('list')" class="flex-1 md:flex-none bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg font-medium transition text-sm">
+                                ⬅️ Quay lại
+                            </button>
+                            <button onclick="deletePost()" class="flex-1 md:flex-none bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition text-sm flex items-center justify-center gap-2">
+                                🗑️ Xóa
+                            </button>
+                            <button onclick="showEditPost()" class="flex-1 md:flex-none bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition text-sm flex items-center justify-center gap-2">
+                                ✏️ Chỉnh sửa
+                            </button>
+                        </div>
+                    </div>
+                    <article id="read-content" class="prose prose-slate prose-blue lg:prose-lg max-w-none prose-headings:font-bold prose-a:text-blue-600">
+                    </article>
                 </div>
             </div>
-            <article id="read-content" class="prose prose-slate prose-blue lg:prose-lg max-w-none prose-headings:font-bold prose-a:text-blue-600">
-                </article>
         </section>
 
-        <section id="view-edit" class="hidden bg-white rounded-2xl shadow-sm border border-slate-200 p-6 min-h-[75vh] flex flex-col">
-            
+        <section id="view-edit" class="hidden bg-white rounded-2xl shadow-sm border border-slate-200 p-6 min-h-[75vh] flex flex-col transition-all duration-300">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 border-b border-slate-100 pb-6">
-                <div class="w-full md:w-1/2 flex items-center gap-3">
-                    <button onclick="cancelEdit()" class="text-slate-500 hover:text-blue-600 transition p-2 bg-slate-50 rounded-lg">
+                <div class="w-full md:w-2/3 flex items-center gap-3">
+                    <button onclick="cancelEdit()" class="text-slate-500 hover:text-blue-600 transition p-2 bg-slate-50 rounded-lg" title="Quay lại">
                         ⬅️
+                    </button>
+                    <button onclick="toggleFullscreen('view-edit')" class="text-slate-500 hover:text-blue-600 transition p-2 bg-slate-50 rounded-lg" title="Phóng to / Thu nhỏ">
+                        🔲
                     </button>
                     <div class="flex-grow">
                         <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Tên file (.md)</label>
@@ -114,17 +158,17 @@
                 </button>
             </div>
 
-            <div class="flex-grow grid grid-cols-1 md:grid-cols-2 gap-6 h-[50vh]">
+            <div id="edit-workspace" class="flex-grow grid grid-cols-1 md:grid-cols-2 gap-6 min-h-[50vh]">
                 <div class="flex flex-col h-full">
                     <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Soạn thảo Markdown</label>
-                    <textarea id="edit-content" class="flex-grow w-full p-5 font-mono text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition resize-none scroll-m-2" placeholder="# Tiêu đề bài viết&#10;&#10;Nhập nội dung Markdown vào đây..."></textarea>
+                    <textarea id="edit-content" class="flex-grow w-full h-full min-h-[400px] p-5 font-mono text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition resize-none scroll-m-2" placeholder="# Tiêu đề bài viết&#10;&#10;Nhập nội dung Markdown vào đây..."></textarea>
                 </div>
 
-                <div class="flex flex-col h-full border border-dashed border-slate-200 rounded-xl bg-white">
-                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider p-5 border-b border-slate-100 bg-slate-50 rounded-t-xl">👀 Xem trước (Preview)</label>
-                    <div class="flex-grow w-full p-6 overflow-y-auto bg-white rounded-b-xl">
+                <div class="flex flex-col h-full border border-dashed border-slate-200 rounded-xl bg-white overflow-hidden">
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider p-5 border-b border-slate-100 bg-slate-50">👀 Xem trước (Preview)</label>
+                    <div class="flex-grow w-full h-full p-6 overflow-y-auto bg-white min-h-[400px]">
                         <article id="edit-preview" class="prose prose-slate prose-blue max-w-none prose-headings:font-bold prose-a:text-blue-600">
-                            </article>
+                        </article>
                     </div>
                 </div>
             </div>
@@ -137,14 +181,21 @@
         let currentPost = { name: '', path: '', sha: '', content: '' };
         let allPosts = []; 
 
-        // Fix lỗi Base64 Unicode
         const b64_to_utf8 = str => decodeURIComponent(escape(window.atob(str)));
         const utf8_to_b64 = str => window.btoa(unescape(encodeURIComponent(str)));
 
-        // marked.js configuration
+        // --- CẤU HÌNH MARKED.JS ĐỂ TẠO ID CHO THẺ HEADING ---
+        const renderer = new marked.Renderer();
+        renderer.heading = function(text, level, raw) {
+            // Loại bỏ các ký tự đặc biệt, tạo ID chuẩn HTML
+            const id = raw.toLowerCase().replace(/[^\w\s-]/g, '').replace(/[\s_]+/g, '-');
+            return `<h${level} id="${id}">${text}</h${level}>\n`;
+        };
+
         marked.setOptions({
-            gfm: true, // GitHub Flavored Markdown
-            breaks: true // Đổi dòng khi nhấn enter
+            renderer: renderer,
+            gfm: true,
+            breaks: true
         });
 
         // --- HỆ THỐNG UI ---
@@ -152,13 +203,8 @@
             const toast = document.getElementById('toast');
             document.getElementById('toast-msg').innerText = msg;
             
-            if(isError) {
-                toast.className = "fixed bottom-4 right-4 p-4 rounded-xl text-white font-medium shadow-lg transition-all duration-300 transform translate-y-0 opacity-100 z-50 flex items-center gap-2 bg-red-500";
-                document.getElementById('toast-icon').innerText = "⚠️";
-            } else {
-                toast.className = "fixed bottom-4 right-4 p-4 rounded-xl text-white font-medium shadow-lg transition-all duration-300 transform translate-y-0 opacity-100 z-50 flex items-center gap-2 bg-emerald-500";
-                document.getElementById('toast-icon').innerText = "✅";
-            }
+            toast.className = `fixed bottom-4 right-4 p-4 rounded-xl text-white font-medium shadow-lg transition-all duration-300 transform translate-y-0 opacity-100 z-[1000] flex items-center gap-2 ${isError ? 'bg-red-500' : 'bg-emerald-500'}`;
+            document.getElementById('toast-icon').innerText = isError ? "⚠️" : "✅";
             
             setTimeout(() => {
                 toast.classList.remove('translate-y-0', 'opacity-100');
@@ -167,6 +213,8 @@
         }
 
         function showView(viewName) {
+            document.querySelectorAll('.fullscreen-mode').forEach(el => el.classList.remove('fullscreen-mode'));
+
             ['config', 'list', 'read', 'edit'].forEach(v => {
                 document.getElementById(`view-${v}`).classList.add('hidden');
             });
@@ -175,10 +223,22 @@
             if (viewName === 'list') fetchList();
             if (viewName === 'edit') initLivePreview();
             
-            window.scrollTo(0, 0); // Cuộn lên đầu
+            window.scrollTo(0, 0);
         }
 
-        // Live Preview Functionality
+        function toggleFullscreen(viewId) {
+            const viewElement = document.getElementById(viewId);
+            const isFullscreen = viewElement.classList.contains('fullscreen-mode');
+            
+            if (isFullscreen) {
+                viewElement.classList.remove('fullscreen-mode');
+                showToast("Đã thu nhỏ giao diện");
+            } else {
+                viewElement.classList.add('fullscreen-mode');
+                showToast("Đã phóng to toàn màn hình");
+            }
+        }
+
         function initLivePreview() {
             const editor = document.getElementById('edit-content');
             const preview = document.getElementById('edit-preview');
@@ -191,17 +251,54 @@
                     preview.innerHTML = '<p class="text-slate-400 italic">Bắt đầu gõ ở khung soạn thảo để xem trước...</p>';
                 }
             });
-            
-            // Khởi chạy preview lần đầu tiên nếu file có nội dung sẵn (trường hợp sửa bài cũ)
             editor.dispatchEvent(new Event('input')); 
+        }
+
+        // --- HÀM TẠO MỤC LỤC TỰ ĐỘNG ---
+        function generateTOC(markdownText) {
+            const tocElement = document.getElementById('read-toc');
+            tocElement.innerHTML = '';
+            
+            // Tìm các thẻ # trong markdown (chỉ khớp đầu dòng)
+            const headingRegex = /^(#{1,6})\s+(.+)$/gm;
+            let match;
+            let hasHeadings = false;
+            
+            while ((match = headingRegex.exec(markdownText)) !== null) {
+                hasHeadings = true;
+                const level = match[1].length; 
+                let text = match[2].trim();
+                
+                // Loại bỏ Markdown syntax thô trong text (như **bold**, *italic*) để hiển thị đẹp hơn
+                const cleanText = text.replace(/[*_~`]/g, '');
+                
+                // Tạo ID giống hệt logic của marked.Renderer bên trên
+                const id = text.toLowerCase().replace(/[^\w\s-]/g, '').replace(/[\s_]+/g, '-');
+                
+                // Định dạng padding tùy theo cấp độ của heading H1, H2, H3...
+                let styleClass = "";
+                if (level === 1) styleClass = "font-extrabold text-blue-700 mt-3";
+                else if (level === 2) styleClass = "pl-3 font-bold text-slate-700";
+                else if (level === 3) styleClass = "pl-6 text-slate-500";
+                else styleClass = `pl-${level*3} text-slate-400 text-xs`;
+
+                tocElement.innerHTML += `
+                    <li class="mb-2">
+                        <a href="#${id}" class="hover:text-blue-600 transition block truncate w-full ${styleClass}" title="${cleanText}">
+                            ${cleanText}
+                        </a>
+                    </li>
+                `;
+            }
+
+            if (!hasHeadings) {
+                tocElement.innerHTML = '<li class="text-slate-400 italic text-center p-4">Không có tiêu đề (Heading) nào trong bài viết.</li>';
+            }
         }
 
         // --- CẤU HÌNH GITHUB ---
         function getRepoInfo() {
-            return {
-                repo: localStorage.getItem('gh_repo'),
-                token: localStorage.getItem('gh_token')
-            };
+            return { repo: localStorage.getItem('gh_repo'), token: localStorage.getItem('gh_token') };
         }
 
         function saveConfig() {
@@ -252,8 +349,7 @@
                 renderList(allPosts);
             } catch (error) {
                 if (error.message.includes('Not Found')) {
-                    allPosts = [];
-                    renderList(allPosts);
+                    allPosts = []; renderList(allPosts);
                 } else {
                     showToast('Lỗi tải dữ liệu: ' + error.message, true);
                 }
@@ -268,7 +364,7 @@
             
             if(posts.length === 0) {
                 grid.innerHTML = `
-                    <div class="col-span-full text-center py-16 bg-white rounded-2xl border border-dashed border-slate-300 shadow-sm">
+                    <div class="col-span-full text-center py-16 bg-white rounded-2xl border border-dashed border-slate-300 shadow-sm w-full max-w-2xl mx-auto">
                         <div class="text-4xl mb-4">✍️</div>
                         <h3 class="text-lg font-bold text-slate-700 mb-4">Chưa có bài viết nào</h3>
                         <button onclick="showCreatePost()" class="text-blue-600 font-medium hover:underline">Tạo bài viết đầu tiên</button>
@@ -276,7 +372,6 @@
                 return;
             }
 
-            // Đảo ngược mảng để bài mới nhất lên đầu
             posts.slice().reverse().forEach(post => {
                 const title = post.name.replace('.md', '').replace(/-/g, ' '); 
                 const card = `
@@ -307,9 +402,12 @@
                 
                 currentPost = { path, sha, name, content: contentText };
                 
-                // Hiển thị ra view Đọc
+                // Hiển thị nội dung
                 document.getElementById('read-title').innerText = name.replace('.md', '').replace(/-/g, ' ');
                 document.getElementById('read-content').innerHTML = marked.parse(contentText);
+                
+                // Sinh Mục lục tự động
+                generateTOC(contentText);
                 
                 showView('read');
             } catch (error) {
@@ -317,16 +415,31 @@
             }
         }
 
+        // --- XÓA BÀI VIẾT ---
+        async function deletePost() {
+            if (!currentPost.sha) return showToast('Không tìm thấy bài viết!', true);
+            
+            if (!confirm(`⚠️ BẠN CHẮC CHẮN XÓA BÀI VIẾT NÀY?`)) return;
+
+            try {
+                await fetchAPI(`contents/${currentPost.path}`, 'DELETE', {
+                    message: `Xóa bài viết: ${currentPost.name}`,
+                    sha: currentPost.sha
+                });
+                showToast('Đã xóa thành công!');
+                showView('list');
+            } catch (error) {
+                showToast('Lỗi khi xóa: ' + error.message, true);
+            }
+        }
+
         // --- SỬA / THÊM ---
         function showEditPost() {
             document.getElementById('edit-filename').value = currentPost.name;
-            document.getElementById('edit-filename').disabled = true; // Sửa thì không cho đổi tên file
+            document.getElementById('edit-filename').disabled = true; 
             document.getElementById('edit-content').value = currentPost.content;
             
-            // Cần khởi tạo lại Live Preview thủ công vì file .value đã được cập nhật
-            const preview = document.getElementById('edit-preview');
-            preview.innerHTML = marked.parse(currentPost.content || '');
-            
+            document.getElementById('edit-preview').innerHTML = marked.parse(currentPost.content || '');
             showView('edit');
         }
 
@@ -336,55 +449,41 @@
             document.getElementById('edit-filename').disabled = false;
             document.getElementById('edit-content').value = '';
             
-            const preview = document.getElementById('edit-preview');
-            preview.innerHTML = '<p class="text-slate-400 italic">Bắt đầu gõ ở khung soạn thảo để xem trước...</p>';
-
+            document.getElementById('edit-preview').innerHTML = '<p class="text-slate-400 italic">Bắt đầu gõ ở khung soạn thảo để xem trước...</p>';
             showView('edit');
         }
 
         function cancelEdit() {
-            // Quay lại trang đọc hoặc trang danh sách tùy trường hợp
-            if (currentPost.sha) {
-                showView('read');
-            } else {
-                showView('list');
-            }
+            if (currentPost.sha) showView('read'); else showView('list');
         }
 
         async function savePostToGitHub() {
             let filename = document.getElementById('edit-filename').value.trim();
             const content = document.getElementById('edit-content').value;
 
-            // Ràng buộc tên file hợp lệ
             if (!filename) return showToast('Vui lòng nhập tên file!', true);
-            filename = filename.replace(/\s+/g, '-').toLowerCase(); // Tự động đổi khoảng trắng thành dấu gạch ngang
+            filename = filename.replace(/\s+/g, '-').toLowerCase(); 
             if (!filename.endsWith('.md')) filename += '.md';
 
             const path = currentPost.path || `posts/${filename}`;
-            const message = currentPost.sha ? `Cập nhật bài viết: ${filename}` : `Thêm bài viết mới: ${filename}`;
-
             const bodyData = {
-                message: message,
+                message: currentPost.sha ? `Cập nhật: ${filename}` : `Thêm mới: ${filename}`,
                 content: utf8_to_b64(content)
             };
-            
             if (currentPost.sha) bodyData.sha = currentPost.sha;
 
             try {
                 const result = await fetchAPI(`contents/${path}`, 'PUT', bodyData);
-                showToast('Đã lưu thành công lên GitHub!');
+                showToast('Lưu lên GitHub thành công!');
                 
-                // Cập nhật state và quay lại view Đọc
-                currentPost.sha = result.content.sha;
-                currentPost.content = content;
-                currentPost.name = filename;
-                currentPost.path = path;
+                currentPost = { sha: result.content.sha, content, name: filename, path };
 
                 document.getElementById('read-title').innerText = filename.replace('.md', '').replace(/-/g, ' ');
                 document.getElementById('read-content').innerHTML = marked.parse(content);
+                generateTOC(content);
                 showView('read');
             } catch (error) {
-                showToast('Lỗi khi lưu: ' + error.message, true);
+                showToast('Lỗi lưu: ' + error.message, true);
             }
         }
 
@@ -394,11 +493,7 @@
             if (repo) document.getElementById('cfg-repo').value = repo;
             if (token) document.getElementById('cfg-token').value = token;
 
-            if (!repo || !token) {
-                showView('config');
-            } else {
-                showView('list');
-            }
+            if (!repo || !token) showView('config'); else showView('list');
         };
     </script>
 </body>
